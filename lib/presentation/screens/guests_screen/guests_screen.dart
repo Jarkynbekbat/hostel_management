@@ -51,7 +51,7 @@ class _GuestsScreenState extends State<GuestsScreen> {
   }
 
   ListView _buildLoaded() {
-    return ListView.separated(
+    return ListView.builder(
         itemBuilder: (context, index) {
           return Slidable(
             actionPane: SlidableDrawerActionPane(),
@@ -85,7 +85,6 @@ class _GuestsScreenState extends State<GuestsScreen> {
             ),
           );
         },
-        separatorBuilder: (context, index) => Divider(),
         itemCount: guests.length);
   }
 

@@ -52,42 +52,42 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   ListView _buildLoaded() {
-    return ListView.separated(
-        itemBuilder: (context, index) {
-          return Slidable(
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
-            actions: <Widget>[
-              IconSlideAction(
-                caption: 'изменить',
-                color: Colors.blue,
-                icon: Icons.edit,
-                onTap: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          CategoryEditScreen(category: categories[index]),
-                    ),
-                  );
-                  _loadcategories();
-                },
-              ),
-              IconSlideAction(
-                caption: 'удалить',
-                color: Colors.indigo,
-                icon: Icons.delete_outline,
-                onTap: () async => await _onDelete(categories[index]),
-              ),
-            ],
-            child: ListTile(
-              leading: Icon(Icons.account_box),
-              title: Text(categories[index].name),
-              subtitle: Text(categories[index].description),
+    return ListView.builder(
+      itemBuilder: (context, index) {
+        return Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.25,
+          actions: <Widget>[
+            IconSlideAction(
+              caption: 'изменить',
+              color: Colors.blue,
+              icon: Icons.edit,
+              onTap: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CategoryEditScreen(category: categories[index]),
+                  ),
+                );
+                _loadcategories();
+              },
             ),
-          );
-        },
-        separatorBuilder: (context, index) => Divider(),
-        itemCount: categories.length);
+            IconSlideAction(
+              caption: 'удалить',
+              color: Colors.indigo,
+              icon: Icons.delete_outline,
+              onTap: () async => await _onDelete(categories[index]),
+            ),
+          ],
+          child: ListTile(
+            leading: Icon(Icons.category),
+            title: Text(categories[index].name),
+            subtitle: Text(categories[index].description),
+          ),
+        );
+      },
+      itemCount: categories.length,
+    );
   }
 
   Future _onDelete(model) async {

@@ -17,9 +17,8 @@ class AllNumbersScreen extends StatefulWidget {
 class _AllNumbersScreenState extends State<AllNumbersScreen> {
   @override
   Widget build(BuildContext context) {
-    context
-        .bloc<NumbersBloc>()
-        .add(NumbersLoadEvent(status: 'all', categoryId: 'все'));
+    context.bloc<NumbersBloc>().add(
+        NumbersLoadEvent(status: 'all', categoryId: 'все', shouldUpdate: true));
 
     return BlocBuilder<NumbersBloc, NumbersState>(
       builder: (context, state) {

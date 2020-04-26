@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hostel_app/blocs/booking_bloc/booking_bloc.dart';
@@ -15,13 +16,17 @@ import 'presentation/screens/numbers_screen/all_numbers/all_numbers_screen.dart'
 import 'presentation/screens/numbers_screen/booked_numbers/booked_numbers_screen.dart';
 import 'presentation/screens/numbers_screen/busy_numbers/busy_numbers_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
 import 'presentation/screens/numbers_screen/free_numbers/free_numbers_screen.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  var user = await auth.currentUser();
+
   initializeDateFormatting().then(
     (_) => runApp(
-      MyApp(initialRoute: AuthScreen.route),
+      MyApp(initialRoute: user == null ? AuthScreen.route : HomeScreen.route),
     ),
   );
 }

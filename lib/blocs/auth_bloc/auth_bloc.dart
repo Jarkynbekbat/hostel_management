@@ -17,6 +17,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       if (event is AuthLoginEvent) yield await _loginToState(auth, event);
       if (event is AuthSignupEvent) yield await _signupToState(auth, event);
+      if (event is AuthLogoutEvent) auth.signOut();
     } catch (ex) {
       yield _onException(ex);
     }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hostel_app/blocs/auth_bloc/auth_bloc.dart';
 import 'package:hostel_app/presentation/screens/auth_screen/auth_screen.dart';
 import 'package:hostel_app/presentation/screens/categories_screen/categories_screen.dart';
 import 'package:hostel_app/presentation/screens/guests_screen/guests_screen.dart';
@@ -65,6 +67,7 @@ class MyDrawer extends StatelessWidget {
                   onOk: () {},
                 );
                 if (result) {
+                  context.bloc<AuthBloc>().add(AuthLogoutEvent());
                   Navigator.of(context).pushReplacementNamed(AuthScreen.route);
                 }
               }),

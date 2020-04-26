@@ -14,3 +14,5 @@ class AuthSignupEvent extends AuthEvent {
   final String password;
   AuthSignupEvent({@required this.email, @required this.password});
 }
+
+class AuthLogoutEvent extends AuthEvent {}

@@ -13,6 +13,10 @@ part 'numbers_state.dart';
 
 class NumbersBloc extends Bloc<NumbersEvent, NumbersState> {
   final Repository _repository;
+  List<Number> numbers;
+  List<Category> categories;
+  List<Booking> booking;
+  List<Living> living;
   NumbersBloc(this._repository);
 
   @override
@@ -22,17 +26,19 @@ class NumbersBloc extends Bloc<NumbersEvent, NumbersState> {
   Stream<NumbersState> mapEventToState(
     NumbersEvent event,
   ) async* {
-    List<Number> numbers = await this._repository.getAll<Number>();
-    List<Category> categories = await this._repository.getAll<Category>();
-    List<Booking> booking = await this._repository.getAll<Booking>();
-    List<Living> living = await this._repository.getAll<Living>();
+    numbers = numbers ?? await this._repository.getAll<Number>();
+    categories = categories ?? await this._repository.getAll<Category>();
+    booking = booking ?? await this._repository.getAll<Booking>();
+    living = living ?? await this._repository.getAll<Living>();
 
-    categories.insert(0, Category(id: 'все', name: 'все'));
+    if (categories[0].id != 'все') {
+      categories.insert(0, Category(id: 'все', name: 'все'));
+    }
     String category = 'все';
 
     if (event is NumbersLoadEvent) {
       if (event.status == 'free') {
-        numbers = numbers.where((el) {
+        var temp = numbers.where((el) {
           bool isBooked = booking.where((b) => b.number == el.id).length != 0
               ? true
               : false;
@@ -41,17 +47,40 @@ class NumbersBloc extends Bloc<NumbersEvent, NumbersState> {
 
           return (!isBooked && !isLiving) ? true : false;
         }).toList();
+        temp;
+
+        category = event.categoryId;
+        if (category != 'все') {
+          yield NumbersLoadedState(
+            numbers:
+                temp.where((number) => number.category == category).toList(),
+            categories: categories,
+            category: category,
+          );
+        } else {
+          yield NumbersLoadedState(
+            numbers: temp,
+            categories: categories,
+            category: category,
+          );
+        }
+      } else {
+        category = event.categoryId;
+        if (category != 'все') {
+          yield NumbersLoadedState(
+            numbers:
+                numbers.where((number) => number.category == category).toList(),
+            categories: categories,
+            category: category,
+          );
+        } else {
+          yield NumbersLoadedState(
+            numbers: numbers,
+            categories: categories,
+            category: category,
+          );
+        }
       }
-      category = event.categoryId;
-      if (category != 'все') {
-        numbers =
-            numbers.where((number) => number.category == category).toList();
-      }
-      yield NumbersLoadedState(
-        numbers: numbers,
-        categories: categories,
-        category: category,
-      );
     }
     if (event is NumbersAddEvent) {
       numbers = await this._repository.add<Number>(event.number);
