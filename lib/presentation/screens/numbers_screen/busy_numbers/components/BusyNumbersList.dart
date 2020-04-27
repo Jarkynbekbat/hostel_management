@@ -9,7 +9,7 @@ import 'package:hostel_app/presentation/screens/numbers_screen/busy_numbers/comp
 import 'package:hostel_app/presentation/screens/numbers_screen/busy_numbers/components/add_time_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/busy_numbers/components/move_living_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/components/custom_flat_button.dart';
-import 'package:hostel_app/presentation/screens/numbers_screen/components/modal_dialogs/make_sure_dialog.dart';
+import 'package:hostel_app/presentation/screens/numbers_screen/components/make_sure_dialog.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class BusyNumbersList extends StatefulWidget {
@@ -53,12 +53,14 @@ class _BusyNumbersListState extends State<BusyNumbersList> {
           Container(
             margin: EdgeInsets.symmetric(horizontal: 16.0),
             child: TableCalendar(
+              formatAnimation: FormatAnimation.slide,
               startDay: DateTime.now(),
               calendarController: _calendarController,
               locale: 'ru_RU',
               events: _generateEvents(),
               calendarStyle: CalendarStyle(
                 canEventMarkersOverflow: true,
+                markersColor: Theme.of(context).accentColor,
               ),
               onDaySelected: (day, events) {
                 try {
@@ -98,78 +100,77 @@ class _BusyNumbersListState extends State<BusyNumbersList> {
               ),
             );
           },
+          context,
         ),
       );
 
-  Widget _buildlivingInfos() {
-    return Container(
-      height: 255,
-      child: ListView.builder(
-        itemCount: _selectedEvents.length,
-        itemBuilder: (context, index) {
-          return Slidable(
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.333,
-            actions: <Widget>[
-              IconSlideAction(
-                caption: 'продлить',
-                color: Colors.blue,
-                icon: Icons.timer,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => AddTimeScreen(
-                        living: _selectedEvents[index],
+  Widget _buildlivingInfos() => Container(
+        height: 250.0,
+        child: ListView.builder(
+          itemCount: _selectedEvents.length,
+          itemBuilder: (context, index) {
+            return Slidable(
+              actionPane: SlidableDrawerActionPane(),
+              actionExtentRatio: 0.333,
+              actions: <Widget>[
+                IconSlideAction(
+                  caption: 'продлить',
+                  color: Colors.blue,
+                  icon: Icons.timer,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AddTimeScreen(
+                          living: _selectedEvents[index],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-              IconSlideAction(
-                caption: 'переселить',
-                color: Colors.indigo,
-                icon: Icons.track_changes,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => MoveLivingScreen(
-                        living: _selectedEvents[index],
-                        numbers: widget.numbers,
+                    );
+                  },
+                ),
+                IconSlideAction(
+                  caption: 'переселить',
+                  color: Colors.indigo,
+                  icon: Icons.track_changes,
+                  onTap: () async {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => MoveLivingScreen(
+                          living: _selectedEvents[index],
+                          numbers: widget.numbers,
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-              IconSlideAction(
-                caption: 'выселить',
-                color: Colors.blue,
-                icon: Icons.cancel,
-                onTap: () => _onDelete(context, index),
-              ),
-            ],
-            child: Card(
-              color: Colors.green.withOpacity(0.5),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  children: <Widget>[
-                    _infoRow('Гость:',
-                        _getGuestNameById(_selectedEvents[index].guest)),
-                    _infoRow('Номер:',
-                        _getNumberNameById(_selectedEvents[index].number)),
-                    _infoRow(
-                        'въезд:', _selectedEvents[index].arriving.toString()),
-                    _infoRow(
-                        'выезд:', _selectedEvents[index].leaving.toString()),
-                  ],
+                    );
+                  },
+                ),
+                IconSlideAction(
+                  caption: 'выселить',
+                  color: Colors.blue,
+                  icon: Icons.cancel,
+                  onTap: () => _onDelete(context, index),
+                ),
+              ],
+              child: Card(
+                color: Colors.green.withOpacity(0.5),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    children: <Widget>[
+                      _infoRow('Гость:',
+                          _getGuestNameById(_selectedEvents[index].guest)),
+                      _infoRow('Номер:',
+                          _getNumberNameById(_selectedEvents[index].number)),
+                      _infoRow(
+                          'въезд:', _selectedEvents[index].arriving.toString()),
+                      _infoRow(
+                          'выезд:', _selectedEvents[index].leaving.toString()),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
+            );
+          },
+        ),
+      );
 
   void _onDelete(BuildContext context, int index) async {
     bool result = await showMakeSureDialog(
@@ -186,23 +187,19 @@ class _BusyNumbersListState extends State<BusyNumbersList> {
     }
   }
 
-  String _getGuestNameById(String id) {
-    return widget.guests.firstWhere((el) => el.id == id).fio;
-  }
+  String _getGuestNameById(String id) =>
+      widget.guests.firstWhere((el) => el.id == id).fio;
 
-  String _getNumberNameById(String id) {
-    return widget.numbers.firstWhere((el) => el.id == id).name;
-  }
+  String _getNumberNameById(String id) =>
+      widget.numbers.firstWhere((el) => el.id == id).name.toString();
 
-  Row _infoRow(title, info) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Text(title),
-        Text(info),
-      ],
-    );
-  }
+  Row _infoRow(title, info) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(title),
+          Text(info),
+        ],
+      );
 
   Map<DateTime, List<dynamic>> _generateEvents() {
     Map<DateTime, List<Living>> events = {};

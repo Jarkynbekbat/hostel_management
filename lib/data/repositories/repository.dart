@@ -14,12 +14,12 @@ class Repository {
   FirestoreProvider _serviceProvider;
   FirestoreProvider _livingProvider;
 
-  List<Number> _numbers = [];
-  List<Category> _categories = [];
-  List<Guest> _guests = [];
-  List<Booking> _booking = [];
-  List<Booking> _services = [];
-  List<Booking> _living = [];
+  List<Number> numbers = [];
+  List<Category> categories = [];
+  List<Guest> guests = [];
+  List<Booking> booking = [];
+  List<Service> services = [];
+  List<Living> living = [];
 
   Repository() {
     _numberProvider = FirestoreProvider(collection: 'numbers');
@@ -30,23 +30,31 @@ class Repository {
     _livingProvider = FirestoreProvider(collection: 'living');
   }
 
-// interface methods
+  Future<bool> initAll() async {
+    this.numbers = await this.getAll<Number>();
+    this.categories = await this.getAll<Category>();
+    this.guests = await this.getAll<Guest>();
+    this.booking = await this.getAll<Booking>();
+    this.living = await this.getAll<Living>();
+    return true;
+  }
 
+// interface methods
   Future<List<M>> getAll<M>() async {
     try {
       switch (M) {
         case Number:
-          return await _getAll<M>(_numberProvider, this._numbers);
+          return await _getAll<M>(_numberProvider, this.numbers);
         case Category:
-          return await _getAll<M>(_categoryProvider, this._categories);
+          return await _getAll<M>(_categoryProvider, this.categories);
         case Guest:
-          return await _getAll<M>(_guestProvider, this._guests);
+          return await _getAll<M>(_guestProvider, this.guests);
         case Booking:
-          return await _getAll<M>(_bookingProvider, this._booking);
+          return await _getAll<M>(_bookingProvider, this.booking);
         case Service:
-          return await _getAll<M>(_serviceProvider, this._services);
+          return await _getAll<M>(_serviceProvider, this.services);
         case Living:
-          return await _getAll<M>(_livingProvider, this._living);
+          return await _getAll<M>(_livingProvider, this.living);
       }
       return [];
     } catch (ex) {
@@ -55,101 +63,74 @@ class Repository {
     }
   }
 
-  Future<List<M>> add<M>(model) async {
-    try {
-      switch (M) {
-        case Number:
-          return await _add<M>(_numberProvider, model, this._numbers);
-        case Category:
-          return await _add<M>(_categoryProvider, model, this._categories);
-        case Guest:
-          return await _add<M>(_guestProvider, model, this._guests);
-        case Booking:
-          return await _add<M>(_bookingProvider, model, this._booking);
-        case Service:
-          return await _add<M>(_serviceProvider, model, this._services);
-        case Living:
-          return await _add<M>(_livingProvider, model, this._living);
-      }
-      return [];
-    } catch (ex) {
-      print(ex);
-      return [];
+  Future<bool> add<M>(model) async {
+    switch (M) {
+      case Number:
+        return await _add<M>(_numberProvider, model);
+      case Category:
+        return await _add<M>(_categoryProvider, model);
+      case Guest:
+        return await _add<M>(_guestProvider, model);
+      case Booking:
+        return await _add<M>(_bookingProvider, model);
+      case Service:
+        return await _add<M>(_serviceProvider, model);
+      case Living:
+        return await _add<M>(_livingProvider, model);
     }
+    return false;
   }
 
-  Future<List<M>> edit<M>(model) async {
-    try {
-      switch (M) {
-        case Number:
-          return await _edit(_numberProvider, model, this._numbers);
-        case Category:
-          return await _edit(_categoryProvider, model, this._categories);
-        case Guest:
-          return await _edit(_guestProvider, model, this._guests);
-        case Booking:
-          return await _edit(_bookingProvider, model, this._booking);
-        case Service:
-          return await _edit(_serviceProvider, model, this._services);
-        case Living:
-          return await _edit(_livingProvider, model, this._living);
-      }
-      return [];
-    } catch (ex) {
-      print(ex);
-      return [];
+  Future<bool> edit<M>(model) async {
+    switch (M) {
+      case Number:
+        return await _edit(_numberProvider, model);
+      case Category:
+        return await _edit(_categoryProvider, model);
+      case Guest:
+        return await _edit(_guestProvider, model);
+      case Booking:
+        return await _edit(_bookingProvider, model);
+      case Service:
+        return await _edit(_serviceProvider, model);
+      case Living:
+        return await _edit(_livingProvider, model);
     }
+    return false;
   }
 
-  Future<List<M>> delete<M>(model) async {
-    try {
-      switch (M) {
-        case Number:
-          return await _delete<M>(_numberProvider, model, this._numbers);
-        case Category:
-          return await _delete<M>(_categoryProvider, model, this._categories);
-        case Guest:
-          return await _delete<M>(_guestProvider, model, this._guests);
-        case Booking:
-          return await _delete<M>(_bookingProvider, model, this._booking);
-        case Service:
-          return await _delete<M>(_serviceProvider, model, this._services);
-        case Living:
-          return await _delete<M>(_livingProvider, model, this._living);
-      }
-      return [];
-    } catch (ex) {
-      print(ex);
-      return [];
+  Future<bool> delete<M>(model) async {
+    switch (M) {
+      case Number:
+        return await _delete<M>(_numberProvider, model);
+      case Category:
+        return await _delete<M>(_categoryProvider, model);
+      case Guest:
+        return await _delete<M>(_guestProvider, model);
+      case Booking:
+        return await _delete<M>(_bookingProvider, model);
+      case Service:
+        return await _delete<M>(_serviceProvider, model);
+      case Living:
+        return await _delete<M>(_livingProvider, model);
     }
+    return false;
   }
 
 // template methods
-  Future<List<M>> _add<M>(provider, model, array) async {
+  Future<bool> _add<M>(provider, model) async {
     bool isAdded = await provider.create(model.toMap());
-    return isAdded ? await this.getAll<M>() : array;
+    return isAdded;
   }
 
-  Future<List<M>> _edit<M>(provider, model, array) async {
-    bool isDeleted = await provider.update(model.toMap());
-    if (isDeleted) {
-      // array.removeWhere((el) => el.id == model.id);
-      // array.add(model);
-      return await this.getAll<M>();
-    }
-    return array;
+  Future<bool> _edit<M>(provider, model) async {
+    bool isUpdated = await provider.update(model.toMap());
+    return isUpdated;
   }
 
-  Future<List<M>> _delete<M>(provider, model, array) async {
+  Future<bool> _delete<M>(provider, model) async {
     bool isDeleted = await provider.delete(model.id);
-    // if (isDeleted) {
-    //   array.removeWhere((el) => el.id == model.id);
-    // }
-    // return array;
-    if (isDeleted) {
-      return await this.getAll<M>();
-    }
-    return array;
+    return isDeleted;
   }
 
   Future<List<M>> _getAll<M>(provider, array) async {

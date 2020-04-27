@@ -15,6 +15,8 @@ class MyChoiceChips extends StatelessWidget with PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return ChipsChoice<String>.single(
+      itemConfig:
+          ChipsChoiceItemConfig(selectedColor: Theme.of(context).accentColor),
       value: value,
       options: ChipsChoiceOption.listFrom<String, Category>(
         source: options,

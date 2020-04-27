@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
+import 'package:hostel_app/data/models/booking.dart';
 import 'package:hostel_app/data/models/guest.dart';
-import 'package:hostel_app/data/repositories/repository.dart';
+import 'package:hostel_app/data/models/living.dart';
 import 'package:hostel_app/presentation/screens/guests_screen/components/guest_add_screen.dart';
 import 'package:hostel_app/presentation/screens/guests_screen/components/guest_edit_screen.dart';
-import 'package:hostel_app/presentation/screens/numbers_screen/components/modal_dialogs/make_sure_dialog.dart';
+import 'package:hostel_app/presentation/screens/numbers_screen/components/make_sure_dialog.dart';
 
 class GuestsScreen extends StatefulWidget {
   static final String route = 'guests_screen';
@@ -13,7 +16,8 @@ class GuestsScreen extends StatefulWidget {
 }
 
 class _GuestsScreenState extends State<GuestsScreen> {
-  Repository repository = Repository();
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
+
   List<Guest> guests = [];
 
   @override
@@ -25,6 +29,7 @@ class _GuestsScreenState extends State<GuestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Гости'),
         centerTitle: true,
@@ -44,9 +49,8 @@ class _GuestsScreenState extends State<GuestsScreen> {
     );
   }
 
-  Future _loadGuests() async {
-    guests = await repository.getAll<Guest>();
-    print('object');
+  _loadGuests() {
+    guests = context.bloc<NumbersBloc>().repository.guests;
     setState(() {});
   }
 
@@ -88,7 +92,7 @@ class _GuestsScreenState extends State<GuestsScreen> {
         itemCount: guests.length);
   }
 
-  Future _onDelete(model) async {
+  Future _onDelete(Guest model) async {
     bool res = await showMakeSureDialog(
       context: context,
       title: 'Удаление',
@@ -97,8 +101,30 @@ class _GuestsScreenState extends State<GuestsScreen> {
       onOk: () {},
     );
     if (res) {
-      guests = await repository.delete<Guest>(model);
-      setState(() {});
+      List<Booking> booking = context.bloc<NumbersBloc>().repository.booking;
+      List<Living> living = context.bloc<NumbersBloc>().repository.living;
+      bool hasBooking = booking.map((b) => b.guest).contains(model.id);
+      bool hasLiving = living.map((l) => l.guest).contains(model.id);
+
+      if (!hasBooking && !hasLiving) {
+        bool isDeleted =
+            await context.bloc<NumbersBloc>().repository.delete<Guest>(model);
+        if (isDeleted) {
+          context
+              .bloc<NumbersBloc>()
+              .repository
+              .guests
+              .removeWhere((g) => g.id == model.id);
+        }
+        _loadGuests();
+      } else {
+        _scaffoldKey.currentState.showSnackBar(
+          SnackBar(
+            content: Text(
+                'Нельзя удалить,этот гость забронировал номер или поселен!'),
+          ),
+        );
+      }
     }
   }
 

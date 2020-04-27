@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hostel_app/blocs/home_bloc/home_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class InfoBloc extends StatelessWidget {
   final int count;
@@ -29,7 +31,7 @@ class InfoBloc extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.0),
         child: Container(
           padding: EdgeInsets.all(16.0),
-          color: Colors.blue,
+          color: Theme.of(context).backgroundColor,
           child: ListTile(
             leading: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,8 +41,12 @@ class InfoBloc extends StatelessWidget {
               ],
             ),
             trailing: InkWell(
-              onTap: () => Navigator.of(context).pushNamed(goTo),
+              onTap: () async {
+                await Navigator.of(context).pushNamed(goTo);
+                context.bloc<HomeBloc>().add(HomeInitFromLocal());
+              },
               child: CircleAvatar(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 radius: 30.0,
                 child: Icon(Icons.arrow_forward),
               ),

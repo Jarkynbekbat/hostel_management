@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class Number {
   String id;
-  String name;
+  int name;
   String category;
 
   Number({

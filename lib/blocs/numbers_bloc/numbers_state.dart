@@ -17,4 +17,7 @@ class NumbersLoadedState extends NumbersState {
   });
 }
 
-class NumbersBookedLoadedState extends NumbersState {}
+class NumbersErrorState extends NumbersState {
+  final String message;
+  NumbersErrorState({@required this.message});
+}

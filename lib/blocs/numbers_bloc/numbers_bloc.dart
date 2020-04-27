@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:bloc/bloc.dart';
-import 'package:hostel_app/data/models/booking.dart';
 import 'package:hostel_app/data/models/category.dart';
-import 'package:hostel_app/data/models/living.dart';
+
 import 'package:hostel_app/data/models/number.dart';
 import 'package:hostel_app/data/repositories/repository.dart';
 import 'package:meta/meta.dart';
@@ -12,12 +10,8 @@ part 'numbers_event.dart';
 part 'numbers_state.dart';
 
 class NumbersBloc extends Bloc<NumbersEvent, NumbersState> {
-  final Repository _repository;
-  List<Number> numbers;
-  List<Category> categories;
-  List<Booking> booking;
-  List<Living> living;
-  NumbersBloc(this._repository);
+  final Repository repository;
+  NumbersBloc(this.repository);
 
   @override
   NumbersState get initialState => NumbersInitial();
@@ -26,79 +20,118 @@ class NumbersBloc extends Bloc<NumbersEvent, NumbersState> {
   Stream<NumbersState> mapEventToState(
     NumbersEvent event,
   ) async* {
-    numbers = numbers ?? await this._repository.getAll<Number>();
-    categories = categories ?? await this._repository.getAll<Category>();
-    booking = booking ?? await this._repository.getAll<Booking>();
-    living = living ?? await this._repository.getAll<Living>();
-
-    if (categories[0].id != 'все') {
-      categories.insert(0, Category(id: 'все', name: 'все'));
-    }
     String category = 'все';
+    if (this.repository.categories[0].name != 'все') {
+      this.repository.categories.insert(0, Category(name: 'все', id: 'все'));
+    }
+    if (event is NumbersLoadEvent) yield _mapLoadToState(event, category);
+    if (event is NumbersAddEvent) yield await _mapAddToState(event, category);
+    if (event is NumbersEditEvent) yield await _mapEditToState(event, category);
+    if (event is NumberDeleteEvent) yield await _mapDelToState(event, category);
+  }
 
-    if (event is NumbersLoadEvent) {
-      if (event.status == 'free') {
-        var temp = numbers.where((el) {
-          bool isBooked = booking.where((b) => b.number == el.id).length != 0
-              ? true
-              : false;
+  Future<NumbersState> _mapDelToState(event, category) async {
+    bool isBooked =
+        this.repository.booking.map((e) => e.number).contains(event.number.id);
+    bool isLiving =
+        this.repository.living.map((e) => e.number).contains(event.number.id);
+    if (isLiving && isBooked) {
+      return NumbersErrorState(
+          message:
+              'Выбранный номер поселен и забронирован, сначала удалите бронь и выселите гостя!');
+    } else if (isLiving || isBooked) {
+      if (isBooked)
+        return NumbersErrorState(
+            message: 'Выбранный номер поселен, сначала выселите гостя!');
+      if (isBooked)
+        return NumbersErrorState(
+            message: 'Выбранный номер забронирован, сначала удалите бронь!');
+    } else {
+      bool isDeleted = await this.repository.delete<Number>(event.number);
+      if (isDeleted)
+        this.repository.numbers.removeWhere((n) => n.id == event.number.id);
+      else
+        return NumbersErrorState(
+            message: 'Не удалось удалить! Проверьте интернет соединение');
+    }
+    return NumbersLoadedState(
+      numbers: this.repository.numbers,
+      categories: this.repository.categories,
+      category: category,
+    );
+  }
+
+  Future<NumbersState> _mapEditToState(event, category) async {
+    bool isExistName =
+        this.repository.numbers.map((e) => e.name).contains(event.number.name);
+
+    if (isExistName) {
+      return NumbersErrorState(
+          message: 'номер с таким названием уже существует!');
+    } else {
+      bool isEdited = await this.repository.edit<Number>(event.number);
+      if (isEdited) {
+        this.repository.numbers.removeWhere((el) => el.id == event.number.id);
+        this.repository.numbers.add(event.number);
+      } else
+        return NumbersErrorState(message: 'не удалось изменить название!');
+    }
+    return NumbersLoadedState(
+      numbers: this.repository.numbers,
+      categories: this.repository.categories,
+      category: category,
+    );
+  }
+
+  Future<NumbersState> _mapAddToState(event, category) async {
+    bool isExistName =
+        this.repository.numbers.map((e) => e.name).contains(event.number.name);
+
+    if (isExistName) {
+      return NumbersErrorState(
+          message: 'номер с таким названием уже существует!');
+    } else {
+      bool isAdded = await this.repository.add<Number>(event.number);
+      if (isAdded)
+        this.repository.numbers.add(event.number);
+      else
+        return NumbersErrorState(message: 'не удалось добавить!');
+    }
+
+    return NumbersLoadedState(
+      numbers: this.repository.numbers,
+      categories: this.repository.categories,
+      category: category,
+    );
+  }
+
+  NumbersState _mapLoadToState(event, category) {
+    List<Number> tempNumbers = this.repository.numbers;
+
+    if (event.status == 'free') {
+      tempNumbers = this.repository.numbers.where(
+        (el) {
+          bool isBooked =
+              this.repository.booking.contains((b) => b.number == el.id);
           bool isLiving =
-              living.where((l) => l.number == el.id).length != 0 ? true : false;
-
+              this.repository.living.contains((l) => l.number == el.id);
           return (!isBooked && !isLiving) ? true : false;
-        }).toList();
-        temp;
-
-        category = event.categoryId;
-        if (category != 'все') {
-          yield NumbersLoadedState(
-            numbers:
-                temp.where((number) => number.category == category).toList(),
-            categories: categories,
-            category: category,
-          );
-        } else {
-          yield NumbersLoadedState(
-            numbers: temp,
-            categories: categories,
-            category: category,
-          );
-        }
-      } else {
-        category = event.categoryId;
-        if (category != 'все') {
-          yield NumbersLoadedState(
-            numbers:
-                numbers.where((number) => number.category == category).toList(),
-            categories: categories,
-            category: category,
-          );
-        } else {
-          yield NumbersLoadedState(
-            numbers: numbers,
-            categories: categories,
-            category: category,
-          );
-        }
-      }
+        },
+      ).toList();
     }
-    if (event is NumbersAddEvent) {
-      numbers = await this._repository.add<Number>(event.number);
-
-      yield NumbersLoadedState(
-          numbers: numbers, categories: categories, category: category);
+    if (event.categoryId != 'все') {
+      category = event.categoryId;
+      tempNumbers = this
+          .repository
+          .numbers
+          .where((number) => number.category == category)
+          .toList();
+      category = event.categoryId;
     }
-
-    if (event is NumberDeleteEvent) {
-      numbers = await this._repository.delete<Number>(event.number);
-      yield NumbersLoadedState(
-          numbers: numbers, categories: categories, category: category);
-    }
-
-    if (event is NumbersEditEvent) {
-      numbers = await this._repository.edit<Number>(event.number);
-      yield NumbersLoadedState(
-          numbers: numbers, categories: categories, category: category);
-    }
+    return NumbersLoadedState(
+      numbers: tempNumbers,
+      categories: this.repository.categories,
+      category: category,
+    );
   }
 }

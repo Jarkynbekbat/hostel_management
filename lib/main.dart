@@ -2,12 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hostel_app/blocs/booking_bloc/booking_bloc.dart';
+import 'package:hostel_app/blocs/home_bloc/home_bloc.dart';
 import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/repositories/repository.dart';
 import 'package:hostel_app/presentation/screens/auth_screen/auth_screen.dart';
 import 'package:hostel_app/presentation/screens/guests_screen/guests_screen.dart';
 import 'blocs/auth_bloc/auth_bloc.dart';
-import 'blocs/hotel_bloc/hotel_bloc.dart';
 // import 'blocs/living_bloc/living_bloc.dart';
 import 'blocs/living_bloc/living_bloc.dart';
 import 'presentation/screens/categories_screen/categories_screen.dart';
@@ -21,7 +21,6 @@ import 'presentation/screens/numbers_screen/free_numbers/free_numbers_screen.dar
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final FirebaseAuth auth = FirebaseAuth.instance;
-
   var user = await auth.currentUser();
 
   initializeDateFormatting().then(
@@ -44,9 +43,6 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(create: (_) => AuthBloc()),
           BlocProvider(
-            create: (context) => HotelBloc(context.repository<Repository>()),
-          ),
-          BlocProvider(
             create: (context) => NumbersBloc(context.repository<Repository>()),
           ),
           BlocProvider(
@@ -55,8 +51,12 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) => LivingBloc(context.repository<Repository>()),
           ),
+          BlocProvider(
+            create: (context) => HomeBloc(context.repository<Repository>()),
+          ),
         ],
         child: MaterialApp(
+          theme: ThemeData.dark(),
           routes: {
             AuthScreen.route: (_) => AuthScreen(),
             HomeScreen.route: (_) => HomeScreen(),

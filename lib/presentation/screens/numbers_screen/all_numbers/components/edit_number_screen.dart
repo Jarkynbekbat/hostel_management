@@ -22,7 +22,7 @@ class _EditNumberScreenState extends State<EditNumberScreen> {
   Widget build(BuildContext context) {
     widget.categories.removeWhere((el) => el.id == 'все');
     _categoryId = widget.number.category;
-    _nameController.text = widget.number.name;
+    _nameController.text = widget.number.name.toString();
 
     return Scaffold(
       key: _scaffoldKey,
@@ -36,18 +36,18 @@ class _EditNumberScreenState extends State<EditNumberScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              'введите название',
-              style: const TextStyle(fontSize: 16.0),
-            ),
             TextField(
+              keyboardType: TextInputType.number,
               controller: _nameController,
-              decoration: InputDecoration(hintText: 'название'),
+              decoration: InputDecoration(
+                  hintText: 'название', helperText: 'введите название номера'),
             ),
             SizedBox(height: 20.0),
             Text(
               'Выберите категорию',
-              style: const TextStyle(fontSize: 16.0),
+              style: TextStyle(
+                color: Colors.black.withOpacity(0.6),
+              ),
             ),
             DropdownButton(
               isExpanded: true,
@@ -67,12 +67,15 @@ class _EditNumberScreenState extends State<EditNumberScreen> {
         child: Icon(Icons.check),
         onPressed: () {
           String name = _nameController.text;
-
           if (name != '') {
-            widget.number.name = name;
-            widget.number.category = _categoryId;
-            BlocProvider.of<NumbersBloc>(context)
-                .add(NumbersEditEvent(number: widget.number));
+            BlocProvider.of<NumbersBloc>(context).add(
+              NumbersEditEvent(
+                number: Number(
+                    id: widget.number.id,
+                    category: _categoryId,
+                    name: int.parse(name)),
+              ),
+            );
 
             Navigator.of(context).pop();
           } else

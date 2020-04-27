@@ -1,12 +1,10 @@
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/number.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/all_numbers/components/edit_number_screen.dart';
-import 'package:hostel_app/presentation/screens/numbers_screen/components/custom_flat_button.dart';
-import 'package:hostel_app/presentation/screens/numbers_screen/components/modal_dialogs/make_sure_dialog.dart';
+import 'package:hostel_app/presentation/screens/numbers_screen/components/make_sure_dialog.dart';
 
 class NumberCard extends StatelessWidget {
   GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
@@ -23,50 +21,64 @@ class NumberCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12.0),
       child: FlipCard(
         key: cardKey,
-        front: _buildFront(),
-        back: _buildBack(context, state),
+        front: _buildFront(context),
+        back: _buildBack(context),
       ),
     );
   }
 
-  Widget _buildFront() {
+  Widget _buildFront(context) {
     const textStyle = const TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
     );
     return Container(
       height: 300,
-      color: Colors.green,
+      color: Theme.of(context).backgroundColor,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            number.name ?? 'нет данных',
-            style: textStyle.copyWith(fontSize: 30.0),
+            number.name.toString(),
+            style: textStyle.copyWith(fontSize: 20.0),
           ),
+          state.category == 'все'
+              ? Text(
+                  getCategoryNameById(number.category),
+                  style: textStyle.copyWith(fontSize: 18.0),
+                )
+              : Container(),
         ],
       ),
     );
   }
 
-  Widget _buildBack(BuildContext context, state) {
+  Widget _buildBack(BuildContext context) {
     return Container(
       color: Colors.blue.withOpacity(0.5),
       child: Center(
         child: Wrap(
-          direction: Axis.vertical,
+          direction: Axis.horizontal,
           children: <Widget>[
-            buildFlatButton('удалить', () => _onDelete(context), 5.0),
-            buildFlatButton(
-                'изменить', () => _onEdit(context, number, state), 5.0),
+            IconButton(
+              icon: Icon(Icons.edit, color: Colors.blue),
+              onPressed: () => _onEdit(context),
+            ),
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _onDelete(context),
+            ),
           ],
         ),
       ),
     );
   }
 
-  void _onEdit(
-      BuildContext context, Number number, NumbersLoadedState state) async {
+  String getCategoryNameById(String id) {
+    return state.categories.firstWhere((el) => el.id == id).name;
+  }
+
+  void _onEdit(BuildContext context) async {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => EditNumberScreen(
         categories: state.categories,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hostel_app/blocs/hotel_bloc/hotel_bloc.dart';
+import 'package:hostel_app/blocs/home_bloc/home_bloc.dart';
+import 'package:hostel_app/presentation/screens/guests_screen/guests_screen.dart';
 import 'package:hostel_app/presentation/screens/home_screen/components/info_block.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/all_numbers/all_numbers_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/booked_numbers/booked_numbers_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/busy_numbers/busy_numbers_screen.dart';
-import 'package:hostel_app/presentation/screens/numbers_screen/free_numbers/free_numbers_screen.dart';
 import 'components/my_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,11 +17,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HotelBloc, HotelState>(
+    return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
-        if (state is HotelReadyState) return _buildReadyState(state, context);
-        if (state is HotelInitial)
-          context.bloc<HotelBloc>().add(HotelLoadEvent());
+        if (state is HomeInitedState) return _buildInitedState(state, context);
+        if (state is HomeInitial) context.bloc<HomeBloc>().add(HomeInitAll());
         return _buildLoadingState();
       },
     );
@@ -31,23 +30,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 
-  Widget _buildReadyState(HotelReadyState state, BuildContext context) {
+  Widget _buildInitedState(HomeInitedState state, BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
         await Future.delayed(Duration(seconds: 1));
-        context.bloc<HotelBloc>().add(HotelLoadEvent());
+        context.bloc<HomeBloc>().add(HomeInitAll());
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Гостиница "HAYAT"'),
+          title: Text('Управление гостиницей'),
           centerTitle: true,
-          actions: <Widget>[
-            DropdownButton(
-              icon: Icon(Icons.more_vert),
-              items: [],
-              onChanged: (index) {},
-            )
-          ],
         ),
         drawer: MyDrawer(email: state.email, post: ''),
         body: Container(
@@ -59,27 +51,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  List<Widget> _buildInfoBlocks(HotelReadyState state) {
+  List<Widget> _buildInfoBlocks(HomeInitedState state) {
     return [
       InfoBloc(
-        count: state.numbersCount,
+        count: state.allNumbersCount,
         subtitle: 'количество номеров',
         goTo: AllNumbersScreen.route,
       ),
       InfoBloc(
-        count: state.busyCount,
+        count: state.guestsCount,
+        subtitle: 'количество гостей',
+        goTo: GuestsScreen.route,
+      ),
+      InfoBloc(
+        count: state.livingCount,
         subtitle: 'поселено',
         goTo: BusyNumbersScreen.route,
       ),
       InfoBloc(
-        count: state.bookedCount,
+        count: state.bookingCount,
         subtitle: 'забронировано',
         goTo: BookedNumbersScreen.route,
-      ),
-      InfoBloc(
-        count: state.freeCount,
-        subtitle: 'свободно',
-        goTo: FreeNumbersScreen.route,
       ),
     ];
   }

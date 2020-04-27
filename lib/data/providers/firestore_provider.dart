@@ -16,7 +16,6 @@ class FirestoreProvider extends AbstractProvider {
       await this._collectionReference.add(map);
       return true;
     } catch (ex) {
-      print(ex);
       return false;
     }
   }
@@ -46,8 +45,10 @@ class FirestoreProvider extends AbstractProvider {
   @override
   Future<List<Map<String, dynamic>>> getAll() async {
     try {
-      QuerySnapshot snapshot = await this._collectionReference.getDocuments();
-      print('$collection-getAll()');
+      QuerySnapshot snapshot = this.collection == 'numbers'
+          ? await this._collectionReference.orderBy('name').getDocuments()
+          : await this._collectionReference.getDocuments();
+
       return snapshot.documents.map((e) {
         var temp = e.data;
         temp['id'] = e.documentID;

@@ -20,3 +20,8 @@ class BookingLoaded extends BookingState {
     @required this.guests,
   });
 }
+
+class BookingErrorState extends BookingState {
+  final String message;
+  BookingErrorState({this.message});
+}

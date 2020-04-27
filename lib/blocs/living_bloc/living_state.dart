@@ -16,3 +16,8 @@ class LivingLoaded extends LivingState {
     @required this.guests,
   });
 }
+
+class LivingErrorState extends LivingState {
+  final String message;
+  LivingErrorState({@required this.message});
+}

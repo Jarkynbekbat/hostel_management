@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/guest.dart';
-import 'package:hostel_app/data/repositories/repository.dart';
 
 class GuestAddScreen extends StatefulWidget {
   @override
@@ -8,7 +9,7 @@ class GuestAddScreen extends StatefulWidget {
 }
 
 class _GuestAddScreenState extends State<GuestAddScreen> {
-  Repository _repository = Repository();
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController _fioController = TextEditingController();
   TextEditingController _infoController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
@@ -21,6 +22,7 @@ class _GuestAddScreenState extends State<GuestAddScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Добавление гостя'),
         centerTitle: true,
@@ -63,20 +65,28 @@ class _GuestAddScreenState extends State<GuestAddScreen> {
           if (_fioController.text != '' &&
               _infoController.text != '' &&
               _phoneController.text != '') {
-            await _repository.add<Guest>(
-              Guest(
-                fio: _fioController.text,
-                info: _infoController.text,
-                phone: _phoneController.text,
-              ),
+            Guest newone = Guest(
+              fio: _fioController.text,
+              info: _infoController.text,
+              phone: _phoneController.text,
             );
-            Navigator.of(context).pop();
+            bool isAdded =
+                await context.bloc<NumbersBloc>().repository.add<Guest>(newone);
+
+            if (isAdded) {
+              context.bloc<NumbersBloc>().repository.guests.add(newone);
+              Navigator.of(context).pop();
+            } else {
+              _scaffoldKey.currentState.showSnackBar(
+                SnackBar(
+                  content:
+                      Text('Не удалось добавить,поверьте интернет соединение!'),
+                ),
+              );
+            }
           } else {
-            Scaffold.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Заполните все поля'),
-                duration: Duration(seconds: 2),
-              ),
+            _scaffoldKey.currentState.showSnackBar(
+              SnackBar(content: Text('Заполните все поля')),
             );
           }
         },

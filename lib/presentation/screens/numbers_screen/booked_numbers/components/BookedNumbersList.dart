@@ -10,7 +10,7 @@ import 'package:hostel_app/data/models/living.dart';
 import 'package:hostel_app/data/models/number.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/booked_numbers/components/add_booking_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/components/custom_flat_button.dart';
-import 'package:hostel_app/presentation/screens/numbers_screen/components/modal_dialogs/make_sure_dialog.dart';
+import 'package:hostel_app/presentation/screens/numbers_screen/components/make_sure_dialog.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class BookedNumbersList extends StatefulWidget {
@@ -60,6 +60,7 @@ class _BookedNumbersListState extends State<BookedNumbersList> {
               events: _generateEvents(),
               calendarStyle: CalendarStyle(
                 canEventMarkersOverflow: true,
+                markersColor: Theme.of(context).accentColor,
               ),
               onDaySelected: (day, events) {
                 setState(() {
@@ -92,6 +93,7 @@ class _BookedNumbersListState extends State<BookedNumbersList> {
               ),
             );
           },
+          context,
         ),
       );
 
@@ -152,20 +154,13 @@ class _BookedNumbersListState extends State<BookedNumbersList> {
       onOk: () {},
     );
     if (result) {
-      // добавить living
-      context.bloc<LivingBloc>().add(
-            LivingAddEvent(
-              living: Living(
-                arriving: _selectedEvents[index].arriving,
-                leaving: _selectedEvents[index].leaving,
-                guest: _selectedEvents[index].guest,
-                number: _selectedEvents[index].number,
-              ),
-            ),
-          );
       // удалить бронь
       BlocProvider.of<BookingBloc>(context)
           .add(BookingDeleteEvent(booking: _selectedEvents[index]));
+      // добавить living
+      context.bloc<LivingBloc>().add(
+            LivingAddFromBookingEvent(booking: _selectedEvents[index]),
+          );
       setState(() => _selectedEvents.removeAt(index));
     }
   }
@@ -190,7 +185,7 @@ class _BookedNumbersListState extends State<BookedNumbersList> {
   }
 
   String _getNumberNameById(String id) {
-    return widget.numbers.firstWhere((el) => el.id == id).name;
+    return widget.numbers.firstWhere((el) => el.id == id).name.toString();
   }
 
   Row _infoRow(title, info) {

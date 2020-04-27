@@ -6,12 +6,10 @@ abstract class NumbersEvent {}
 class NumbersLoadEvent extends NumbersEvent {
   final String status;
   final String categoryId;
-  final bool shouldUpdate;
 
   NumbersLoadEvent({
-    @required this.status,
+    this.status = 'все',
     @required this.categoryId,
-    this.shouldUpdate = false,
   });
 }
 

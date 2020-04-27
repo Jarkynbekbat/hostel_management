@@ -5,7 +5,6 @@ abstract class BookingEvent {}
 
 class BookingLoadEvent extends BookingEvent {
   final String categoryId;
-
   BookingLoadEvent({@required this.categoryId});
 }
 

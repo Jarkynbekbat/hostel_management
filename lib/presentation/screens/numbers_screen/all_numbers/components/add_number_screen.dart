@@ -35,27 +35,22 @@ class _AddNumberScreenState extends State<AddNumberScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              'введите название',
-              style: const TextStyle(fontSize: 16.0),
-            ),
             TextField(
+              keyboardType: TextInputType.number,
               controller: _nameController,
-              decoration: InputDecoration(hintText: 'название'),
+              decoration: InputDecoration(
+                hintText: 'название',
+                helperText: 'введите название номера',
+              ),
             ),
             SizedBox(height: 20.0),
-            Text(
-              'Выберите категорию',
-              style: const TextStyle(fontSize: 16.0),
-            ),
+            Text('Выберите категорию'),
             DropdownButton(
               isExpanded: true,
               value: _categoryId,
               items: widget.categories
-                  .map(
-                    (el) =>
-                        DropdownMenuItem(child: Text(el.name), value: el.id),
-                  )
+                  .map((el) =>
+                      DropdownMenuItem(child: Text(el.name), value: el.id))
                   .toList(),
               onChanged: (value) => setState(() => _categoryId = value),
             ),
@@ -67,13 +62,21 @@ class _AddNumberScreenState extends State<AddNumberScreen> {
         onPressed: () {
           String name = _nameController.text;
           if (name != '' && name != null) {
-            widget.categories.insert(0, Category(id: 'все', name: 'все'));
-            BlocProvider.of<NumbersBloc>(context).add(
-              NumbersAddEvent(
-                number: Number(name: name, category: _categoryId),
-              ),
-            );
-            Navigator.of(context).pop();
+            try {
+              BlocProvider.of<NumbersBloc>(context).add(
+                NumbersAddEvent(
+                  number: Number(name: int.parse(name), category: _categoryId),
+                ),
+              );
+              Navigator.of(context).pop();
+            } catch (ex) {
+              _scaffoldKey.currentState.showSnackBar(
+                SnackBar(
+                  content: Text('введите только цифры!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
           } else {
             _scaffoldKey.currentState.showSnackBar(
               SnackBar(

@@ -75,8 +75,8 @@ class _AddLivingScreenState extends State<AddLivingScreen> {
                 DropdownButton(
                   value: _numberId,
                   items: widget.numbers
-                      .map((el) =>
-                          DropdownMenuItem(child: Text(el.name), value: el.id))
+                      .map((el) => DropdownMenuItem(
+                          child: Text(el.name.toString()), value: el.id))
                       .toList(),
                   onChanged: (value) {
                     setState(() {
@@ -89,23 +89,15 @@ class _AddLivingScreenState extends State<AddLivingScreen> {
             Center(
               child: buildFlatButton(
                 'выбрать даты',
-                () async {
-                  final List<DateTime> picked =
-                      await DateRagePicker.showDatePicker(
-                          context: context,
-                          initialFirstDate:
-                              (DateTime.now()).add(Duration(days: 1)),
-                          initialLastDate:
-                              (DateTime.now()).add(Duration(days: 7)),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(2021));
-                  if (picked != null && picked.length == 2) {
-                    _arriving = picked[0];
-                    _leaving = picked[1];
-                  }
-                },
+                () async => await _onSelectRange(context),
+                context,
               ),
-            )
+            ),
+            SizedBox(height: 50.0),
+            Text(
+                _arriving != null ? 'Дата въезда:             $_arriving' : ''),
+            SizedBox(height: 20.0),
+            Text(_leaving != null ? 'Дата выезда:             $_leaving' : ''),
           ],
         ),
       ),
@@ -125,8 +117,9 @@ class _AddLivingScreenState extends State<AddLivingScreen> {
                 number: _numberId,
                 guest: _guestId,
               );
-              BlocProvider.of<LivingBloc>(context)
-                  .add(LivingAddEvent(living: living));
+              BlocProvider.of<LivingBloc>(context).add(
+                LivingAddEvent(living: living),
+              );
               Navigator.of(context).pop();
             } else {
               _scaffoldKey.currentState.showSnackBar(
@@ -138,5 +131,20 @@ class _AddLivingScreenState extends State<AddLivingScreen> {
             }
           }),
     );
+  }
+
+  Future _onSelectRange(BuildContext context) async {
+    final List<DateTime> picked = await DateRagePicker.showDatePicker(
+        context: context,
+        initialFirstDate: (DateTime.now()).add(Duration(days: 1)),
+        initialLastDate: (DateTime.now()).add(Duration(days: 7)),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2021));
+    if (picked != null && picked.length == 2) {
+      setState(() {
+        _arriving = picked[0];
+        _leaving = picked[1];
+      });
+    }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../custom_flat_button.dart';
+import 'custom_flat_button.dart';
 
 Future<bool> showMakeSureDialog({
   BuildContext context,
@@ -25,8 +24,13 @@ Future<bool> showMakeSureDialog({
                   result = true;
                   Navigator.of(context).pop();
                 },
+                context,
               ),
-              buildFlatButton('отмена', () => Navigator.of(context).pop()),
+              buildFlatButton(
+                'отмена',
+                () => Navigator.of(context).pop(),
+                context,
+              ),
             ],
           ),
         ),

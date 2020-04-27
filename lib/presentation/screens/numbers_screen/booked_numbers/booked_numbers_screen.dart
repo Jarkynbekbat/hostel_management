@@ -10,23 +10,40 @@ class BookedNumbersScreen extends StatefulWidget {
 }
 
 class _BookedNumbersScreenState extends State<BookedNumbersScreen> {
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     context.bloc<BookingBloc>().add(BookingLoadEvent(categoryId: 'все'));
 
-    return BlocBuilder<BookingBloc, BookingState>(
-      builder: (context, state) {
-        if (state is BookingLoaded) return _buildLoaded(context, state);
-        if (state is BookingInitial)
+    return BlocListener<BookingBloc, BookingState>(
+      listener: (context, state) {
+        if (state is BookingErrorState) {
+          _scaffoldKey.currentState.showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+            ),
+          );
           context.bloc<BookingBloc>().add(BookingLoadEvent(categoryId: 'все'));
-
-        return _buildLoadingState(context);
+        }
       },
+      child: BlocBuilder<BookingBloc, BookingState>(
+        builder: (context, state) {
+          if (state is BookingLoaded) return _buildLoaded(context, state);
+          if (state is BookingInitial)
+            context
+                .bloc<BookingBloc>()
+                .add(BookingLoadEvent(categoryId: 'все'));
+
+          return _buildLoadingState(context);
+        },
+      ),
     );
   }
 
   Widget _buildLoaded(BuildContext context, BookingLoaded state) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Забронированные номера'),
         centerTitle: true,

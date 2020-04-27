@@ -51,6 +51,7 @@ class _AddTimeScreenState extends State<AddTimeScreen> {
                 );
                 setState(() => _selected = true);
               },
+              context,
             ),
             SizedBox(height: 20.0),
             _selected
@@ -68,9 +69,15 @@ class _AddTimeScreenState extends State<AddTimeScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
         onPressed: () {
-          widget.living.leaving = _leaving;
+          Living newone = Living(
+            id: widget.living.id,
+            guest: widget.living.guest,
+            number: widget.living.number,
+            arriving: widget.living.arriving,
+            leaving: _leaving,
+          );
           BlocProvider.of<LivingBloc>(context)
-              .add(LivingEditEvent(living: widget.living));
+              .add(LivingEditEvent(living: newone));
           Navigator.of(context).pop();
         },
       ),

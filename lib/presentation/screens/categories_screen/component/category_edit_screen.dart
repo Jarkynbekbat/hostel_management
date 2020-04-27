@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/category.dart';
 import 'package:hostel_app/data/repositories/repository.dart';
 
@@ -12,8 +14,6 @@ class CategoryEditScreen extends StatefulWidget {
 
 class _CategoryEditScreenState extends State<CategoryEditScreen> {
   var _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  Repository _repository = Repository();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
@@ -83,23 +83,47 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
         onPressed: () async {
+          NumbersBloc numbersBloc = BlocProvider.of<NumbersBloc>(context);
           if (_nameController.text != '' &&
               _descriptionController.text != '' &&
               _priceController.text != '' &&
               _roomsController.text != '') {
-            widget.category.name = _nameController.text;
-            widget.category.description = _descriptionController.text;
-            widget.category.price = int.parse(_priceController.text);
-            widget.category.rooms = int.parse(_roomsController.text);
-
-            await _repository.edit<Category>(widget.category);
-            Navigator.of(context).pop();
+            var isExistName = numbersBloc.repository.categories
+                .map((e) => e.name)
+                .contains(_nameController.text);
+            if (isExistName) {
+              _scaffoldKey.currentState.showSnackBar(
+                SnackBar(
+                  content: Text('Категория с таким названием уже существует!'),
+                ),
+              );
+            } else {
+              Category newone = Category(
+                id: widget.category.id,
+                name: _nameController.text,
+                description: _descriptionController.text,
+                price: int.parse(_priceController.text),
+                rooms: int.parse(_roomsController.text),
+              );
+              bool isEdited =
+                  await numbersBloc.repository.edit<Category>(newone);
+              if (isEdited) {
+                numbersBloc.repository.categories
+                    .removeWhere((c) => c.id == newone.id);
+                numbersBloc.repository.categories.add(newone);
+                Navigator.of(context).pop();
+              } else {
+                _scaffoldKey.currentState.showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'Не удалось изменить , проверьте интернет соединение!'),
+                  ),
+                );
+              }
+            }
           } else {
-            Scaffold.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Заполните все поля'),
-                duration: Duration(seconds: 2),
-              ),
+            _scaffoldKey.currentState.showSnackBar(
+              SnackBar(content: Text('Заполните все поля')),
             );
           }
         },

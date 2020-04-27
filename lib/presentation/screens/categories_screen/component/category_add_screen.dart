@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/category.dart';
-import 'package:hostel_app/data/repositories/repository.dart';
 
 class CategoryAddScreen extends StatefulWidget {
   @override
@@ -8,7 +9,7 @@ class CategoryAddScreen extends StatefulWidget {
 }
 
 class _GuestAddScreenState extends State<CategoryAddScreen> {
-  Repository _repository = Repository();
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
@@ -21,7 +22,9 @@ class _GuestAddScreenState extends State<CategoryAddScreen> {
 
   @override
   Widget build(BuildContext context) {
+    NumbersBloc numbersBloc = BlocProvider.of<NumbersBloc>(context);
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Добавление категории'),
         centerTitle: true,
@@ -77,21 +80,32 @@ class _GuestAddScreenState extends State<CategoryAddScreen> {
               _descriptionController.text != '' &&
               _priceController.text != '' &&
               _roomsController.text != '') {
-            await _repository.add<Category>(
-              Category(
-                name: _nameController.text,
-                description: _descriptionController.text,
-                price: int.parse(_priceController.text),
-                rooms: int.parse(_roomsController.text),
-              ),
+            Category newone = Category(
+              name: _nameController.text,
+              description: _descriptionController.text,
+              price: int.parse(_priceController.text),
+              rooms: int.parse(_roomsController.text),
             );
-            Navigator.of(context).pop();
+
+            bool isExistName = numbersBloc.repository.categories
+                .map((e) => e.name)
+                .contains(newone.name);
+            if (isExistName) {
+              _scaffoldKey.currentState.showSnackBar(
+                SnackBar(
+                  content: Text('Категория с таким названием уже существует!'),
+                ),
+              );
+            } else {
+              bool isAdded = await numbersBloc.repository.add<Category>(newone);
+              if (isAdded) {
+                numbersBloc.repository.categories.add(newone);
+              }
+              Navigator.of(context).pop();
+            }
           } else {
-            Scaffold.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Заполните все поля'),
-                duration: Duration(seconds: 2),
-              ),
+            _scaffoldKey.currentState.showSnackBar(
+              SnackBar(content: Text('Заполните все поля')),
             );
           }
         },

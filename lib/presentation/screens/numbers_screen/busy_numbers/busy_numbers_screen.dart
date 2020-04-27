@@ -10,23 +10,36 @@ class BusyNumbersScreen extends StatefulWidget {
 }
 
 class _BusyNumbersScreenState extends State<BusyNumbersScreen> {
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
-    context.bloc<LivingBloc>().add(LivingLoadEvent());
+    // context.bloc<LivingBloc>().add(LivingLoadEvent());
 
-    return BlocBuilder<LivingBloc, LivingState>(
-      builder: (context, state) {
-        if (state is LivingLoaded) return _buildLoaded(context, state);
-        if (state is LivingInitial)
+    return BlocListener<LivingBloc, LivingState>(
+      listener: (context, state) {
+        if (state is LivingErrorState) {
+          _scaffoldKey.currentState.showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
           context.bloc<LivingBloc>().add(LivingLoadEvent());
-
-        return _buildLoadingState(context);
+        }
       },
+      child: BlocBuilder<LivingBloc, LivingState>(
+        builder: (context, state) {
+          if (state is LivingLoaded) return _buildLoaded(context, state);
+          if (state is LivingInitial)
+            context.bloc<LivingBloc>().add(LivingLoadEvent());
+
+          return _buildLoadingState(context);
+        },
+      ),
     );
   }
 
   Widget _buildLoaded(BuildContext context, LivingLoaded state) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Поселенные номера'),
         centerTitle: true,

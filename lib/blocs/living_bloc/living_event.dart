@@ -10,6 +10,11 @@ class LivingAddEvent extends LivingEvent {
   LivingAddEvent({@required this.living});
 }
 
+class LivingAddFromBookingEvent extends LivingEvent {
+  final Booking booking;
+  LivingAddFromBookingEvent({@required this.booking});
+}
+
 class LivingDeleteEvent extends LivingEvent {
   final Living living;
   LivingDeleteEvent({@required this.living});

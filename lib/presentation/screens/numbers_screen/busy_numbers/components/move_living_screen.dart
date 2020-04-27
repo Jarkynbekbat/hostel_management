@@ -22,8 +22,10 @@ class _MoveLivingScreenState extends State<MoveLivingScreen> {
   @override
   Widget build(BuildContext context) {
     _numberId = _numberId ?? widget.living.number;
-    currentNumberName =
-        widget.numbers.firstWhere((el) => el.id == widget.living.number).name;
+    currentNumberName = widget.numbers
+        .firstWhere((el) => el.id == widget.living.number)
+        .name
+        .toString();
 
     return Scaffold(
       key: _scaffoldKey,
@@ -32,7 +34,7 @@ class _MoveLivingScreenState extends State<MoveLivingScreen> {
         centerTitle: true,
       ),
       body: Container(
-        padding: EdgeInsets.all(18.0),
+        padding: EdgeInsets.all(60.0),
         child: Column(
           children: <Widget>[
             Row(
@@ -45,12 +47,15 @@ class _MoveLivingScreenState extends State<MoveLivingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text('Номер:'),
+                Text('пепеселить в:'),
                 DropdownButton(
                   value: _numberId,
                   items: widget.numbers
-                      .map((el) =>
-                          DropdownMenuItem(child: Text(el.name), value: el.id))
+                      .map((el) => DropdownMenuItem(
+                          child: Text(
+                            el.name.toString(),
+                          ),
+                          value: el.id))
                       .toList(),
                   onChanged: (value) {
                     setState(() => _numberId = value);
@@ -64,9 +69,16 @@ class _MoveLivingScreenState extends State<MoveLivingScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
         onPressed: () {
-          widget.living.number = _numberId;
+          Living newone = Living(
+            id: widget.living.id,
+            guest: widget.living.guest,
+            arriving: widget.living.arriving,
+            leaving: widget.living.leaving,
+            number: _numberId,
+          );
+
           BlocProvider.of<LivingBloc>(context)
-              .add(LivingEditEvent(living: widget.living));
+              .add(LivingEditEvent(living: newone));
           Navigator.of(context).pop();
         },
       ),

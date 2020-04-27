@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/category.dart';
-import 'package:hostel_app/data/repositories/repository.dart';
-import 'package:hostel_app/presentation/screens/numbers_screen/components/modal_dialogs/make_sure_dialog.dart';
-
+import 'package:hostel_app/presentation/screens/numbers_screen/components/make_sure_dialog.dart';
 import 'component/category_add_screen.dart';
 import 'component/category_edit_screen.dart';
 
@@ -14,9 +14,8 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
-  Repository repository = Repository();
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Category> categories = [];
-
   @override
   void initState() {
     _loadcategories();
@@ -26,6 +25,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Категории номеров'),
         centerTitle: true,
@@ -46,8 +46,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Future _loadcategories() async {
-    categories = await repository.getAll<Category>();
-    print('object');
+    categories = BlocProvider.of<NumbersBloc>(context).repository.categories;
+    if (categories[0].name == 'все') categories.removeAt(0);
     setState(() {});
   }
 
@@ -90,7 +90,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  Future _onDelete(model) async {
+  Future _onDelete(Category model) async {
     bool res = await showMakeSureDialog(
       context: context,
       title: 'Удаление',
@@ -99,8 +99,37 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       onOk: () {},
     );
     if (res) {
-      categories = await repository.delete<Category>(model);
-      setState(() {});
+      bool hasNumbers = BlocProvider.of<NumbersBloc>(context)
+          .repository
+          .numbers
+          .map((n) => n.category)
+          .contains(model.id);
+      if (hasNumbers) {
+        _scaffoldKey.currentState.showSnackBar(
+          SnackBar(
+            content:
+                Text('К этой категории привязаны номера , сначала удалите их'),
+          ),
+        );
+      } else {
+        bool isDeleted = await BlocProvider.of<NumbersBloc>(context)
+            .repository
+            .delete<Category>(model);
+        if (isDeleted) {
+          BlocProvider.of<NumbersBloc>(context)
+              .repository
+              .categories
+              .removeWhere((c) => c.id == model.id);
+          _loadcategories();
+        } else {
+          _scaffoldKey.currentState.showSnackBar(
+            SnackBar(
+              content:
+                  Text('Не удалось удалить,проверьте интернет соединение!'),
+            ),
+          );
+        }
+      }
     }
   }
 

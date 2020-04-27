@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/all_numbers/components/add_number_screen.dart';
-import 'package:hostel_app/presentation/screens/numbers_screen/all_numbers/components/numbers_grid.dart';
+import 'package:hostel_app/presentation/screens/numbers_screen/components/numbers_grid.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/components/custom_flat_button.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/components/my_choice_chips.dart';
 
@@ -58,8 +58,11 @@ class _FreeNumbersScreenState extends State<FreeNumbersScreen> {
           numbers: state.numbers,
         ),
       ),
-      floatingActionButton:
-          buildFlatButton('Добавление номера', () => _onAddNumber(state)),
+      floatingActionButton: buildFlatButton(
+        'Добавление номера',
+        () => _onAddNumber(state),
+        context,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

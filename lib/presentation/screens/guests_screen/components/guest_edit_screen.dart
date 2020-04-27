@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/guest.dart';
 import 'package:hostel_app/data/repositories/repository.dart';
 
@@ -12,8 +14,6 @@ class GuestEditScreen extends StatefulWidget {
 
 class _GuestEditScreenState extends State<GuestEditScreen> {
   var _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  Repository _repository = Repository();
   TextEditingController _fioController = TextEditingController();
   TextEditingController _infoController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
@@ -72,13 +72,29 @@ class _GuestEditScreenState extends State<GuestEditScreen> {
           if (_fioController.text != '' &&
               _infoController.text != '' &&
               _phoneController.text != '') {
-            widget.guest.fio = _fioController.text;
-            widget.guest.info = _infoController.text;
-            widget.guest.phone = _phoneController.text;
-            await _repository.edit<Guest>(widget.guest);
-            Navigator.of(context).pop();
+            Guest newone = Guest(
+              id: widget.guest.id,
+              fio: _fioController.text,
+              info: _infoController.text,
+              phone: _phoneController.text,
+            );
+
+            bool isEdited = await context
+                .bloc<NumbersBloc>()
+                .repository
+                .edit<Guest>(newone);
+
+            if (isEdited) {
+              context
+                  .bloc<NumbersBloc>()
+                  .repository
+                  .guests
+                  .removeWhere((g) => g.id == newone.id);
+              context.bloc<NumbersBloc>().repository.guests.add(newone);
+              Navigator.of(context).pop();
+            }
           } else {
-            var snackbar = SnackBar(content: Text("Cars enabled"));
+            var snackbar = SnackBar(content: Text("Заполните все поля!"));
             _scaffoldKey.currentState.showSnackBar(snackbar);
           }
         },
