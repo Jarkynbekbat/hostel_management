@@ -6,7 +6,6 @@ import 'package:hostel_app/blocs/living_bloc/living_bloc.dart';
 // import 'package:hostel_app/blocs/living_bloc/living_bloc.dart';
 import 'package:hostel_app/data/models/booking.dart';
 import 'package:hostel_app/data/models/guest.dart';
-import 'package:hostel_app/data/models/living.dart';
 import 'package:hostel_app/data/models/number.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/booked_numbers/components/add_booking_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/components/custom_flat_button.dart';

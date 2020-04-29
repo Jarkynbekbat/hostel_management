@@ -22,7 +22,6 @@ class _GuestAddScreenState extends State<CategoryAddScreen> {
 
   @override
   Widget build(BuildContext context) {
-    NumbersBloc numbersBloc = BlocProvider.of<NumbersBloc>(context);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -87,7 +86,9 @@ class _GuestAddScreenState extends State<CategoryAddScreen> {
               rooms: int.parse(_roomsController.text),
             );
 
-            bool isExistName = numbersBloc.repository.categories
+            bool isExistName = BlocProvider.of<NumbersBloc>(context)
+                .repository
+                .categories
                 .map((e) => e.name)
                 .contains(newone.name);
             if (isExistName) {
@@ -97,9 +98,14 @@ class _GuestAddScreenState extends State<CategoryAddScreen> {
                 ),
               );
             } else {
-              bool isAdded = await numbersBloc.repository.add<Category>(newone);
+              bool isAdded = await BlocProvider.of<NumbersBloc>(context)
+                  .repository
+                  .add<Category>(newone);
               if (isAdded) {
-                numbersBloc.repository.categories.add(newone);
+                BlocProvider.of<NumbersBloc>(context)
+                    .repository
+                    .categories
+                    .add(newone);
               }
               Navigator.of(context).pop();
             }

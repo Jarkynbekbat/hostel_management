@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/guest.dart';
-import 'package:hostel_app/data/repositories/repository.dart';
 
 class GuestEditScreen extends StatefulWidget {
   Guest guest;

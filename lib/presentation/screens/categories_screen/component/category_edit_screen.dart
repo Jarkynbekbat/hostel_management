@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/category.dart';
-import 'package:hostel_app/data/repositories/repository.dart';
 
 class CategoryEditScreen extends StatefulWidget {
   Category category;
@@ -33,7 +32,7 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Добавление категории'),
+        title: Text('Изменение категории'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -83,12 +82,14 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
         onPressed: () async {
-          NumbersBloc numbersBloc = BlocProvider.of<NumbersBloc>(context);
           if (_nameController.text != '' &&
               _descriptionController.text != '' &&
               _priceController.text != '' &&
               _roomsController.text != '') {
-            var isExistName = numbersBloc.repository.categories
+            var isExistName = context
+                .bloc<NumbersBloc>()
+                .repository
+                .categories
                 .map((e) => e.name)
                 .contains(_nameController.text);
             if (isExistName) {
@@ -105,12 +106,17 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
                 price: int.parse(_priceController.text),
                 rooms: int.parse(_roomsController.text),
               );
-              bool isEdited =
-                  await numbersBloc.repository.edit<Category>(newone);
+              bool isEdited = await context
+                  .bloc<NumbersBloc>()
+                  .repository
+                  .edit<Category>(newone);
               if (isEdited) {
-                numbersBloc.repository.categories
+                context
+                    .bloc<NumbersBloc>()
+                    .repository
+                    .categories
                     .removeWhere((c) => c.id == newone.id);
-                numbersBloc.repository.categories.add(newone);
+                context.bloc<NumbersBloc>().repository.categories.add(newone);
                 Navigator.of(context).pop();
               } else {
                 _scaffoldKey.currentState.showSnackBar(

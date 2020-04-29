@@ -95,37 +95,4 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     }
     return true;
   }
-
-  // BookingLoaded _bookingLoadToState(
-  //     // BookingLoadEvent event,
-  //     List<Booking> booking,
-  //     List<Number> numbers,
-  //     // List<Category> categories,
-  //     List<Guest> guests) {
-  //   // if (event.categoryId != 'все') {
-  //   //   List<Booking> filtredBooking = [];
-  //   //   booking.forEach(
-  //   //     (booked) {
-  //   //       Number number =
-  //   //           numbers.firstWhere((number) => number.id == booked.number);
-  //   //       if (number.category == event.categoryId) filtredBooking.add(booked);
-  //   //     },
-  //   //   );
-  //   //   return BookingLoaded(
-  //   //     booking: filtredBooking,
-  //   //     numbers: numbers,
-  //   //     // categories: categories,
-  //   //     category: event.categoryId,
-  //   //     guests: guests,
-  //   //   );
-  //   // } else {
-  //   return BookingLoaded(
-  //     booking: booking,
-  //     numbers: numbers,
-  //     // categories: categories,
-  //     // category: event.categoryId,
-  //     guests: guests,
-  //   );
-  //   // }
-  // }
 }

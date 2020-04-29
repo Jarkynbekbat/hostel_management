@@ -6,6 +6,7 @@ import 'package:hostel_app/data/models/booking.dart';
 import 'package:hostel_app/data/models/guest.dart';
 import 'package:hostel_app/data/models/living.dart';
 import 'package:hostel_app/presentation/screens/guests_screen/components/guest_add_screen.dart';
+import 'package:hostel_app/presentation/screens/guests_screen/components/guest_detail_screen.dart';
 import 'package:hostel_app/presentation/screens/guests_screen/components/guest_edit_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/components/make_sure_dialog.dart';
 
@@ -86,10 +87,17 @@ class _GuestsScreenState extends State<GuestsScreen> {
               leading: Icon(Icons.account_box),
               title: Text(guests[index].fio),
               subtitle: Text(guests[index].info),
+              onTap: () => _goToDetailScreen(context, index),
             ),
           );
         },
         itemCount: guests.length);
+  }
+
+  void _goToDetailScreen(BuildContext context, int index) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => GuestDeatailScreen(guest: guests[index]),
+    ));
   }
 
   Future _onDelete(Guest model) async {
