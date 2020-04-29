@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hostel_app/blocs/numbers_bloc/numbers_bloc.dart';
 import 'package:hostel_app/data/models/category.dart';
+import 'package:hostel_app/presentation/screens/categories_screen/component/category_detail_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/components/make_sure_dialog.dart';
 import 'component/category_add_screen.dart';
 import 'component/category_edit_screen.dart';
@@ -83,10 +84,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             leading: Icon(Icons.category),
             title: Text(categories[index].name),
             subtitle: Text(categories[index].description),
+            onTap: () => _goToDetailScreen(context, index),
           ),
         );
       },
       itemCount: categories.length,
+    );
+  }
+
+  void _goToDetailScreen(BuildContext context, int index) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CategoryDetailScreen(category: categories[index]),
+      ),
     );
   }
 
