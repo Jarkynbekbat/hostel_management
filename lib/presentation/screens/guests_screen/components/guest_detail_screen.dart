@@ -94,8 +94,8 @@ class _GuestDeatailScreenState extends State<GuestDeatailScreen> {
             .firstWhere((n) => n.id == _living[index].number)
             .name;
         return ListTile(
-          leading: Icon(Icons.vpn_key),
-          title: Text('номер $number'),
+          leading: CircleAvatar(child: Text('$number')),
+          title: Text('номер '),
           subtitle: Text(
               'c ${DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY, 'RU_ru').format(_booking[index].arriving)} по ${DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY, 'RU_ru').format(_booking[index].leaving)}'),
         );
@@ -114,8 +114,8 @@ class _GuestDeatailScreenState extends State<GuestDeatailScreen> {
             .firstWhere((n) => n.id == _booking[index].number)
             .name;
         return ListTile(
-          leading: Icon(Icons.lock),
-          title: Text('номер $number'),
+          leading: CircleAvatar(child: Text('$number')),
+          title: Text('номер '),
           subtitle: Text(
               'c ${DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY, 'RU_ru').format(_booking[index].arriving)} по ${DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY, 'RU_ru').format(_booking[index].leaving)}'),
         );

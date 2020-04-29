@@ -6,6 +6,7 @@ import 'package:hostel_app/presentation/screens/home_screen/components/info_bloc
 import 'package:hostel_app/presentation/screens/numbers_screen/all_numbers/all_numbers_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/booked_numbers/booked_numbers_screen.dart';
 import 'package:hostel_app/presentation/screens/numbers_screen/busy_numbers/busy_numbers_screen.dart';
+import 'components/fade_animation.dart';
 import 'components/my_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -53,25 +54,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Widget> _buildInfoBlocks(HomeInitedState state) {
     return [
-      InfoBloc(
-        count: state.allNumbersCount,
-        subtitle: 'количество номеров',
-        goTo: AllNumbersScreen.route,
+      FadeAnimation(
+        1,
+        InfoBloc(
+          count: state.allNumbersCount,
+          subtitle: 'количество номеров',
+          goTo: AllNumbersScreen.route,
+        ),
       ),
-      InfoBloc(
-        count: state.guestsCount,
-        subtitle: 'количество гостей',
-        goTo: GuestsScreen.route,
+      FadeAnimation(
+        1.3,
+        InfoBloc(
+          count: state.guestsCount,
+          subtitle: 'количество гостей',
+          goTo: GuestsScreen.route,
+        ),
       ),
-      InfoBloc(
-        count: state.livingCount,
-        subtitle: 'поселено',
-        goTo: BusyNumbersScreen.route,
+      FadeAnimation(
+        1.6,
+        InfoBloc(
+          count: state.livingCount,
+          subtitle: 'поселено',
+          goTo: BusyNumbersScreen.route,
+        ),
       ),
-      InfoBloc(
-        count: state.bookingCount,
-        subtitle: 'забронировано',
-        goTo: BookedNumbersScreen.route,
+      FadeAnimation(
+        1.9,
+        InfoBloc(
+          count: state.bookingCount,
+          subtitle: 'забронировано',
+          goTo: BookedNumbersScreen.route,
+        ),
       ),
     ];
   }

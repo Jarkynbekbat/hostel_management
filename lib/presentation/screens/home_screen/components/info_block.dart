@@ -16,7 +16,7 @@ class InfoBloc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const countTextStyle = const TextStyle(
-      fontSize: 40.0,
+      fontSize: 50.0,
       fontWeight: FontWeight.bold,
       color: Colors.white,
     );
@@ -33,13 +33,8 @@ class InfoBloc extends StatelessWidget {
           padding: EdgeInsets.all(16.0),
           color: Theme.of(context).backgroundColor,
           child: ListTile(
-            leading: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('$count', style: countTextStyle),
-                Text(subtitle, style: subtitleTextStyle),
-              ],
-            ),
+            title: Text('$count', style: countTextStyle),
+            subtitle: Text(subtitle, style: subtitleTextStyle),
             trailing: InkWell(
               onTap: () async {
                 await Navigator.of(context).pushNamed(goTo);
